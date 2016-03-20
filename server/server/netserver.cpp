@@ -12,25 +12,24 @@ int main(int argc, char* argv[])
 	SOCKADDR_IN serverAddr, clientAddr;
 
 	char message[100];
-
 	int sizeClientAddr;
 	int result;
-
+	
 	if (argc != 3)
 	{
 		ErrorHandling("usage error");
 	}
 
-	result = WSAStartup(MAKEWORD(2, 2), &wsaData); //기본적으로 해야하는거
+	result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (result != 0)
 	{
-		ErrorHandling("WSAStartup() error");
+		ErrorHandling("WSAStartup error");
 	}
 
-	hServerSock = socket(PF_INET, SOCK_STREAM, 0); //소켓만듬
+	hServerSock = socket(AF_INET, SOCK_STREAM, 0);
 	if (hServerSock == INVALID_SOCKET)
 	{
-		ErrorHandling("socket() error");
+		ErrorHandling("socket error");
 	}
 
 	memset(&serverAddr, 0, sizeof(serverAddr));
@@ -41,25 +40,22 @@ int main(int argc, char* argv[])
 	result = bind(hServerSock, (SOCKADDR*)&serverAddr, sizeof(serverAddr));
 	if (result == SOCKET_ERROR)
 	{
-		ErrorHandling("bind() error");
+		ErrorHandling("bind error");
 	}
 
-	result = listen(hServerSock, 5); //오는거 기다림 입력이 동시에 몇개 올수있는지
+	result = listen(hServerSock, 5);
 	if (result == SOCKET_ERROR)
 	{
-		ErrorHandling("listen() error");
+		ErrorHandling("listen error");
 	}
-	//else ErrorHandling("listen() sucess");
 
 	sizeClientAddr = sizeof(clientAddr);
 	hClientSock = accept(hServerSock, (SOCKADDR*)&clientAddr, &sizeClientAddr);
 	if (hClientSock == INVALID_SOCKET)
 	{
-		ErrorHandling("accept() error");
+		ErrorHandling("accept error");
 	}
 
-
-	//메세지 받아서 화면에 출력
 	while (1)
 	{
 		result = recv(hClientSock, message, 100, 0);
@@ -87,5 +83,4 @@ void ErrorHandling(char* message)
 	fputc('\n', stdout);
 	system("pause");
 	exit(1);
-
 }
