@@ -58,6 +58,7 @@ int main(int argc, char* argv[])
 		ErrorHandling("accept() error");
 	}
 
+
 	//메세지 받아서 화면에 출력
 	while (1)
 	{
@@ -66,7 +67,11 @@ int main(int argc, char* argv[])
 		{
 			printf("%s\n", message);
 		}
+		else
+			break;
 	}
+
+	printf("Dissconnected\n");
 
 	closesocket(hServerSock);
 	closesocket(hClientSock);

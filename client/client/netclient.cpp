@@ -11,7 +11,8 @@ int main(int argc, char* argv[])
 	SOCKET hSocket;
 	SOCKADDR_IN serverAddr;
 
-	char message[30];
+	char message[100];
+	char message1[4] = "bye";
 	int strLen;
 	int result;
 
@@ -43,12 +44,20 @@ int main(int argc, char* argv[])
 		ErrorHandling("connect() error");
 	}
 
-	printf("connected!");
+	printf("connected!\n");
 
 	while (1)
 	{
 		printf("보낼 메세지를 입력하세요:");
 		scanf("%s", message);
+
+
+		if ( strcmp(message, message1)==0 )
+		{
+			break;
+		}
+
+
 		strLen = send(hSocket, message, strlen(message) + 1, 0);
 		
 		if (strLen == -1)
@@ -58,7 +67,7 @@ int main(int argc, char* argv[])
 
 	}
 	
-
+	printf("Dissconnected\n");
 	closesocket(hSocket);
 	WSACleanup();
 
