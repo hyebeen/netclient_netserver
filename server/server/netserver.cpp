@@ -15,19 +15,23 @@ int main(int argc, char* argv[])
 	char message1[100];
 	int sizeClientAddr;
 	int result;
+	char argv1[20] = "-echo";
+	char argv2;
 
-	if (argc != 3)
+	if ((argc == 3) || (argc == 2))
 	{
-		ErrorHandling("usage error");
+		printf("입력한 값 : %s   %s \n", argv[1], argv[2]);
 	}
+	else 
+		ErrorHandling("usage error");
 
-	result = WSAStartup(MAKEWORD(2, 2), &wsaData); //기본적으로 해야하는거
+	result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (result != 0)
 	{
 		ErrorHandling("WSAStartup() error");
 	}
 
-	hServerSock = socket(PF_INET, SOCK_STREAM, 0); //소켓만듬
+	hServerSock = socket(PF_INET, SOCK_STREAM, 0);
 	if (hServerSock == INVALID_SOCKET)
 	{
 		ErrorHandling("socket() error");
@@ -44,7 +48,7 @@ int main(int argc, char* argv[])
 		ErrorHandling("bind() error");
 	}
 
-	result = listen(hServerSock, 5); //오는거 기다림 입력이 동시에 몇개 올수있는지
+	result = listen(hServerSock, 5);
 	if (result == SOCKET_ERROR)
 	{
 		ErrorHandling("listen() error");
@@ -57,8 +61,6 @@ int main(int argc, char* argv[])
 		ErrorHandling("accept() error");
 	}
 
-
-	//메세지 받아서 화면에 출력
 	while (1)
 	{
 		result = recv(hClientSock, message, 100, 0);
@@ -66,10 +68,14 @@ int main(int argc, char* argv[])
 		{
 			printf("clinet -> %s\n", message);
 		}
-		else
+		if (result <= 0)
 			break;
-		strcpy(message1, message);
-		result = send(hClientSock, message1, strlen(message1) + 1, 0);
+
+		if (strcmp(argv[2], argv1) == 0)
+		{
+			strcpy(message1, message);
+			result = send(hClientSock, message1, strlen(message1) + 1, 0);
+		}
 	}
 
 	printf("Dissconnected!\n");

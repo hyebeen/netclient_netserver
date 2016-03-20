@@ -15,27 +15,27 @@ int main(int argc, char* argv[])
 	char message1[4] = "bye";
 	int result;
 
-	if (argc != 3) //언래 기본값 1 + 2개입력하니까 3개
+	if (argc != 3)
 	{
 		ErrorHandling("usage error");
 	}
 
-	result = WSAStartup(MAKEWORD(2, 2), &wsaData); //소켓프로그래밍할때 기본적으로 해줘야하는것
+	result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (result != 0)
 	{
 		ErrorHandling("WSAStartup() error");
 	}
 
-	hSocket = socket(PF_INET, SOCK_STREAM, 0); //ipv4 , tcp 소켓 생성
+	hSocket = socket(PF_INET, SOCK_STREAM, 0);
 	if (hSocket == INVALID_SOCKET)
 	{
 		ErrorHandling("socket() error");
 	}
 
-	memset(&serverAddr, 0, sizeof(serverAddr)); //덮어쓸메모리주소, 덮어쓸 값,덮어쓸 사이즈
-	serverAddr.sin_family = AF_INET; //ipv4
-	serverAddr.sin_addr.S_un.S_addr = inet_addr(argv[1]); //ip
-	serverAddr.sin_port = htons(atoi(argv[2])); //포트 atoint 정수형으로 바꿈
+	memset(&serverAddr, 0, sizeof(serverAddr));
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_addr.S_un.S_addr = inet_addr(argv[1]);
+	serverAddr.sin_port = htons(atoi(argv[2]));
 
 	result = connect(hSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr));
 	if (result == INVALID_SOCKET)
@@ -57,10 +57,10 @@ int main(int argc, char* argv[])
 		result = send(hSocket, message, strlen(message) + 1, 0);
 
 		result = recv(hSocket, message, 100, 0);
-		if (result > 0)
-		{
-			printf("서버가 '%s'를 수신했습니다.\n", message);
-		}
+			if (result > 0)
+			{
+				printf("서버가 '%s'를 수신했습니다.\n", message);
+			}
 	}
 
 	printf("Dissconnected!\n");
@@ -75,6 +75,6 @@ void ErrorHandling(char* message)
 {
 	fputs(message, stdout);
 	fputc('\n', stdout);
-	system("pause"); //프로그램이 종료되도 창이 안닫힘
+	system("pause");
 	exit(1);
 }
