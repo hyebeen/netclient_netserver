@@ -1,19 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <winsock2.h>
+#include <thread>
+
 #pragma comment(lib, "ws2_32.lib")
 
 void ErrorHandling(char* message);
+void receive(SOCKET ClientSock, bool echo);
 
 int main(int argc, char* argv[])
 {
 	WSADATA wsaData;
 	SOCKET ServerSock, ClientSock;
-	SOCKADDR_IN ServerAddr, ClientAddr;
-
-	char message[100];
-	int sizeClientAddr;
+	SOCKADDR_IN ServerAddr;
 	int result;
+	bool echo = false;
 
 	if ((argc == 3) || (argc == 2))
 	{
@@ -21,6 +22,11 @@ int main(int argc, char* argv[])
 	}
 	else
 		ErrorHandling("usage error");
+
+	if (argc == 3 && strcmp(argv[2], "-echo") == 0)
+	{
+		echo = true;
+	}
 
 	result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (result != 0)
@@ -50,33 +56,49 @@ int main(int argc, char* argv[])
 	{
 		ErrorHandling("listen error");
 	}
-	sizeClientAddr = sizeof(ClientAddr);
-	ClientSock = accept(ServerSock, (SOCKADDR*)&ClientAddr, &sizeClientAddr);
-	if (ClientSock == INVALID_SOCKET)
-	{
-		ErrorHandling("accept error");
-	}
 
-	while (1)
-	{
-		result = recv(ClientSock, message, 100, 0);
-		if (result > 0)
-		{
-			printf("clinet -> %s\n", message);
+	while (1) {
+		ClientSock = accept(ServerSock, NULL, NULL);
+		if (ClientSock == INVALID_SOCKET)
+		{  
+			ErrorHandling("accept error");
+			continue; 
 		}
-		if (argc == 3 && strcmp(argv[2], "-echo") == 0)
-		{
-			result = send(ClientSock, message, strlen(message) + 1, 0);
-		}
+		std::thread(&receive, ClientSock, echo).detach();
 	}
-
-	printf("Dissconnected!\n");
+	
 	closesocket(ServerSock);
-	closesocket(ClientSock);
 	WSACleanup();
 
 	system("pause");
 	return 0;
+}
+
+void receive(SOCKET ClientSock, bool echo)
+{
+	char message[100];
+	int result;
+
+	while (1)
+	{
+		result = recv(ClientSock, message, 100, 0);
+		if (result > 0)  
+		{
+			printf("clinet -> %s\n", message);
+		}
+		else
+		{
+			break;
+		}
+		if (echo)
+		{
+			result = send(ClientSock, message, strlen(message) + 1, 0);
+		}
+	} 
+	printf("Dissconnected!\n");
+	closesocket(ClientSock);
+
+	return;
 }
 
 void ErrorHandling(char* message)
