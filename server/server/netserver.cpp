@@ -8,79 +8,71 @@ void ErrorHandling(char* message);
 int main(int argc, char* argv[])
 {
 	WSADATA wsaData;
-	SOCKET hServerSock, hClientSock;
-	SOCKADDR_IN serverAddr, clientAddr;
+	SOCKET ServerSock, ClientSock;
+	SOCKADDR_IN ServerAddr, ClientAddr;
 
 	char message[100];
-	char message1[100];
 	int sizeClientAddr;
 	int result;
-	char argv1[20] = "-echo";
-	char argv2;
 
 	if ((argc == 3) || (argc == 2))
 	{
 		printf("입력한 값 : %s   %s \n", argv[1], argv[2]);
 	}
-	else 
+	else
 		ErrorHandling("usage error");
 
 	result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (result != 0)
 	{
-		ErrorHandling("WSAStartup() error");
+		ErrorHandling("WSAStartup error");
 	}
 
-	hServerSock = socket(PF_INET, SOCK_STREAM, 0);
-	if (hServerSock == INVALID_SOCKET)
+	ServerSock = socket(PF_INET, SOCK_STREAM, 0);
+	if (ServerSock == INVALID_SOCKET)
 	{
-		ErrorHandling("socket() error");
+		ErrorHandling("socket error");
 	}
 
-	memset(&serverAddr, 0, sizeof(serverAddr));
-	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
-	serverAddr.sin_port = htons(atoi(argv[1]));
+	memset(&ServerAddr, 0, sizeof(ServerAddr));
+	ServerAddr.sin_family = AF_INET;
+	ServerAddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
+	ServerAddr.sin_port = htons(atoi(argv[1]));
 
-	result = bind(hServerSock, (SOCKADDR*)&serverAddr, sizeof(serverAddr));
+	result = bind(ServerSock, (SOCKADDR*)&ServerAddr, sizeof(ServerAddr));
 	if (result == SOCKET_ERROR)
 	{
-		ErrorHandling("bind() error");
+		ErrorHandling("bind error");
 	}
 
-	result = listen(hServerSock, 5);
+	result = listen(ServerSock, SOMAXCONN);
 	if (result == SOCKET_ERROR)
 	{
-		ErrorHandling("listen() error");
+		ErrorHandling("listen error");
 	}
-
-	sizeClientAddr = sizeof(clientAddr);
-	hClientSock = accept(hServerSock, (SOCKADDR*)&clientAddr, &sizeClientAddr);
-	if (hClientSock == INVALID_SOCKET)
+	sizeClientAddr = sizeof(ClientAddr);
+	ClientSock = accept(ServerSock, (SOCKADDR*)&ClientAddr, &sizeClientAddr);
+	if (ClientSock == INVALID_SOCKET)
 	{
-		ErrorHandling("accept() error");
+		ErrorHandling("accept error");
 	}
 
 	while (1)
 	{
-		result = recv(hClientSock, message, 100, 0);
+		result = recv(ClientSock, message, 100, 0);
 		if (result > 0)
 		{
 			printf("clinet -> %s\n", message);
 		}
-		if (result <= 0)
-			break;
-
-		if (strcmp(argv[2], argv1) == 0)
+		if (argc == 3 && strcmp(argv[2], "-echo") == 0)
 		{
-			strcpy(message1, message);
-			result = send(hClientSock, message1, strlen(message1) + 1, 0);
+			result = send(ClientSock, message, strlen(message) + 1, 0);
 		}
 	}
 
 	printf("Dissconnected!\n");
-	closesocket(hServerSock);
-	closesocket(hClientSock);
+	closesocket(ServerSock);
+	closesocket(ClientSock);
 	WSACleanup();
 
 	system("pause");
