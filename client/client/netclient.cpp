@@ -5,7 +5,6 @@
 
 void Error(char* message);
 
-
 int main(int argc, char* argv[])
 {
 	WSADATA wsaData;

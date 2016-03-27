@@ -92,7 +92,7 @@ void receive(SOCKET ClientSock, bool echo)
 		}
 		if (echo)
 		{
-			result = send(ClientSock, message, strlen(message) + 1, 0);
+			send(ClientSock, message, strlen(message) + 1, 0);
 		}
 	} 
 	closesocket(ClientSock);
