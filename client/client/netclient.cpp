@@ -66,13 +66,11 @@ int main(int argc, char* argv[])
 	closesocket(Socket);
 	WSACleanup();
 
-	system("pause");
 	return 0;
 }
 
 void Error(char* message)
 {
-	fputs(message, stdout);
-	fputc('\n', stdout);
-	system("pause");
+	puts(message);
+	exit(1);
 }
