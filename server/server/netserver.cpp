@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
 		ClientSock = accept(ServerSock, NULL, NULL);
 		if (ClientSock == INVALID_SOCKET)
 		{  
-			Error("accept error");
+			printf("accept error\n");
 			continue; 
 		}
 		std::thread(&receive, ClientSock, echo).detach();
