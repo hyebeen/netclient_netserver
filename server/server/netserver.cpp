@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <winsock2.h>
 #include <thread>
 
@@ -70,7 +71,6 @@ int main(int argc, char* argv[])
 	closesocket(ServerSock);
 	WSACleanup();
 
-	system("pause");
 	return 0;
 }
 
@@ -102,7 +102,6 @@ void receive(SOCKET ClientSock, bool echo)
 
 void Error(char* message)
 {
-	fputs(message, stdout);
-	fputc('\n', stdout);
-	system("pause");
+	puts(message);
+	exit(1);
 }
