@@ -5,7 +5,7 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
-void ErrorHandling(char* message);
+void Error(char* message);
 void receive(SOCKET ClientSock, bool echo);
 
 int main(int argc, char* argv[])
@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 		printf("입력한 값 : %s   %s \n", argv[1], argv[2]);
 	}
 	else
-		ErrorHandling("usage error");
+		Error("usage error");
 
 	if (argc == 3 && strcmp(argv[2], "-echo") == 0)
 	{
@@ -31,13 +31,13 @@ int main(int argc, char* argv[])
 	result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (result != 0)
 	{
-		ErrorHandling("WSAStartup error");
+		Error("WSAStartup error");
 	}
 
 	ServerSock = socket(PF_INET, SOCK_STREAM, 0);
 	if (ServerSock == INVALID_SOCKET)
 	{
-		ErrorHandling("socket error");
+		Error("socket error");
 	}
 
 	memset(&ServerAddr, 0, sizeof(ServerAddr));
@@ -48,20 +48,20 @@ int main(int argc, char* argv[])
 	result = bind(ServerSock, (SOCKADDR*)&ServerAddr, sizeof(ServerAddr));
 	if (result == SOCKET_ERROR)
 	{
-		ErrorHandling("bind error");
+		Error("bind error");
 	}
 
 	result = listen(ServerSock, SOMAXCONN);
 	if (result == SOCKET_ERROR)
 	{
-		ErrorHandling("listen error");
+		Error("listen error");
 	}
 
 	while (1) {
 		ClientSock = accept(ServerSock, NULL, NULL);
 		if (ClientSock == INVALID_SOCKET)
 		{  
-			ErrorHandling("accept error");
+			Error("accept error");
 			continue; 
 		}
 		std::thread(&receive, ClientSock, echo).detach();
@@ -82,29 +82,27 @@ void receive(SOCKET ClientSock, bool echo)
 	while (1)
 	{
 		result = recv(ClientSock, message, 100, 0);
-		if (result > 0)  
+		if (result <= 0)  
 		{
-			printf("clinet -> %s\n", message);
+			break;
 		}
 		else
 		{
-			break;
+			printf("clinet -> %s\n", message);
 		}
 		if (echo)
 		{
 			result = send(ClientSock, message, strlen(message) + 1, 0);
 		}
 	} 
-	printf("Dissconnected!\n");
 	closesocket(ClientSock);
 
 	return;
 }
 
-void ErrorHandling(char* message)
+void Error(char* message)
 {
 	fputs(message, stdout);
 	fputc('\n', stdout);
 	system("pause");
-	exit(1);
 }

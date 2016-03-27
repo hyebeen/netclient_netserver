@@ -3,7 +3,7 @@
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
 
-void ErrorHandling(char* message);
+void Error(char* message);
 
 
 int main(int argc, char* argv[])
@@ -17,19 +17,19 @@ int main(int argc, char* argv[])
 
 	if (argc != 3)
 	{
-		ErrorHandling("usage error");
+		Error("usage error");
 	}
 
 	result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (result != 0)
 	{
-		ErrorHandling("WSAStartup() error");
+		Error("WSAStartup error");
 	}
 
 	Socket = socket(PF_INET, SOCK_STREAM, 0);
 	if (Socket == INVALID_SOCKET)
 	{
-		ErrorHandling("socket() error");
+		Error("socket error");
 	}
 
 	memset(&ServerAddr, 0, sizeof(ServerAddr));
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 	result = connect(Socket, (SOCKADDR*)&ServerAddr, sizeof(ServerAddr));
 	if (result == INVALID_SOCKET)
 	{
-		ErrorHandling("connect error");
+		Error("connect error");
 	}
 
 	printf("connected!\n");
@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 		result = recv(Socket, message, 100, 0);
 		if (result > 0)
 		{
-			printf("서버가 '%s'를 수신했습니다.\n", message);
+			printf("서버로부터 '%s'를 수신했습니다.\n", message);
 		}
 	}
 
@@ -71,10 +71,9 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void ErrorHandling(char* message)
+void Error(char* message)
 {
 	fputs(message, stdout);
 	fputc('\n', stdout);
 	system("pause");
-	exit(1);
 }
