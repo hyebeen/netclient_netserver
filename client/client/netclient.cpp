@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 	}
 
 	printf("connected!\n");
-
+	setsockopt(Socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
 	while (1)
 	{
 		printf("보낼 메세지를 입력하세요. : ");
@@ -55,7 +55,6 @@ int main(int argc, char* argv[])
 			break;
 		}
 		result = send(Socket, message, strlen(message) + 1, 0);
-		setsockopt(Socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
 		result = recv(Socket, message, 100, 0);
 		if (result > 0)
 		{
