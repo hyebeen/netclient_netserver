@@ -2,16 +2,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <winsock2.h>
+#include <thread>
+
 #pragma comment(lib, "ws2_32.lib")
 
 void Error(char* message);
+void _receive(SOCKET Socket, char maeesage[100]);
+void _send(SOCKET Socket, char message[100]);
+
+bool done=false;
 
 int main(int argc, char* argv[])
 {
 	WSADATA wsaData;
 	SOCKET Socket;
 	SOCKADDR_IN ServerAddr;
-	int timeout = 1000;
 	char message[100];
 	int result;
 
@@ -44,23 +49,12 @@ int main(int argc, char* argv[])
 	}
 
 	printf("connected!\n");
-	setsockopt(Socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
-	while (1)
-	{
-		printf("보낼 메세지를 입력하세요. : ");
-		scanf("%s", message);
+	
+	std::thread receive_thread(&_receive, Socket, message);
+	std::thread send_thread(&_send, Socket, message);
 
-		if (strcmp(message, "quit") == 0)
-		{
-			break;
-		}
-		result = send(Socket, message, strlen(message) + 1, 0);
-		result = recv(Socket, message, 100, 0);
-		if (result > 0)
-		{
-			printf("서버로부터 '%s'를 수신했습니다.\n", message);
-		}
-	}
+	receive_thread.join();
+	send_thread.join();
 
 	printf("Dissconnected!\n");
 	closesocket(Socket);
@@ -68,7 +62,39 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
+void _send(SOCKET Socket, char message[100])
+{	
+	int result;
+	while (1) {
+		printf("보낼 메세지를 입력하세요. : ");
+		scanf("%s", message);
 
+		if (strcmp(message, "quit") == 0)
+		{
+			done = true;
+			break;
+		}
+		result = send(Socket, message, strlen(message) + 1, 0);
+		if (result != strlen(message)+1)
+		{
+			printf("message가 정상적으로 전송되지 않았습니다.");
+		}
+	}
+}
+void _receive(SOCKET Socket, char message[100])
+{
+	int result;
+	int timeout = 1000;
+	setsockopt(Socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
+	while (done==false)
+	{
+		result = recv(Socket, message, 100, 0);
+		if (result > 0)
+		{
+			printf("\n서버로부터 '%s'를 수신했습니다.\n", message);
+		}
+	}
+}
 void Error(char* message)
 {
 	puts(message);

@@ -77,6 +77,7 @@ int main(int argc, char* argv[])
 void receive(SOCKET ClientSock, bool echo)
 {
 	char message[100];
+	char message1[100];
 	int result;
 
 	while (1)
